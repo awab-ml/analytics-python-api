@@ -1,0 +1,6 @@
+services:
+  app:
+    image: analytics_api:v1
+    build:
+      context: .
+      dockerfile: dockerfile
