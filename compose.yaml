@@ -4,3 +4,14 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+
+    env_file:
+      - .env.compose
+
+    ports:
+        - "8002:8000"
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload 
+
+    volumes:
+      - ./src:/code:rw
+        
