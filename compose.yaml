@@ -1,10 +1,11 @@
+version: "3.9"
+
 services:
   app:
-    image: analytics_api:v1
-
     build:
       context: .
-      dockerfile: Dockerfile   
+      dockerfile: Dockerfile
+    image: analytics_api:v1
 
     env_file:
       - .env.compose
@@ -12,10 +13,15 @@ services:
     ports:
       - "8002:8000"
 
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-
+    # Mount فقط src للحفاظ على PYTHONPATH
     volumes:
-      - .:/code
+      - ./src:/code/src
+
+    environment:
+      - PYTHONPATH=/code/src
+
+
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
     develop:
       watch:
@@ -24,4 +30,4 @@ services:
         - action: rebuild
           path: requirements.txt
         - action: rebuild
-          path: compose.yaml
+          path: docker-compose.yml

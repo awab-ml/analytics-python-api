@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
+# create events endpoint "routes"
 @router.get("/events")
 def read_events():
     return{

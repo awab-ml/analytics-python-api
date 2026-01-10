@@ -1,22 +1,18 @@
+# Base image
 FROM python:3.13-slim
 
-# Create a virtual environment
+# 1️⃣ Create a virtual environment
 RUN python -m venv /opt/venv
 
-# Set the virtual environment as the current location
+# 2️⃣ Set the virtual environment as default Python
 ENV PATH=/opt/venv/bin:$PATH
 
-# Upgrade pip
-RUN pip install --upgrade pip
-
-# Set Python-related environment variables
+# 3️⃣ Python environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/code/src  
 
-# Add /code to PYTHONPATH so Python can find the src folder
-ENV PYTHONPATH=/code
-
-# Install OS dependencies
+# 4️⃣ Install OS dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libjpeg-dev \
@@ -24,30 +20,29 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Create the code directory inside the container
+# 5️⃣ Create working directory
 RUN mkdir -p /code
-
-# Set working directory
 WORKDIR /code
 
-# Copy the requirements file
+# 6️⃣ Copy Python dependencies first (for caching)
 COPY requirements.txt /tmp/requirements.txt
 
-# Copy the project code
+# 7️⃣ Copy project code
 COPY ./src /code/src
 
-# Install Python dependencies
+# 8️⃣ Install Python dependencies
+RUN pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 
-# Make the runtime script executable
+# 9️⃣ Copy runtime script and make it executable
 COPY ./boot/docker-run.sh /opt/run.sh
 RUN chmod +x /opt/run.sh
 
-# Clean up apt cache
+# 1️⃣0️⃣ Optional cleanup to reduce image size
 RUN apt-get remove --purge -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Run the FastAPI project via the runtime script
+# 1️⃣1️⃣ Run the FastAPI project
 CMD ["/opt/run.sh"]
