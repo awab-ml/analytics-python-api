@@ -17,8 +17,9 @@ async def lifespan(app: FastAPI):
 
 
 
-# create fastapi app and include routers 
+#create lifespan for the app startup and shutdown 
 app = FastAPI(lifespan=lifespan)
+# create fastapi app and include routers 
 app.include_router(event_router, prefix="/api/events")
 
 

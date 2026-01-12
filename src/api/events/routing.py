@@ -1,6 +1,11 @@
 import os 
 
-from fastapi import APIRouter
+
+from sqlmodel import Session, select
+from api.db.session import get_session
+
+
+from fastapi import APIRouter, Depends
 from .models import (EventModel,
                       EventListSchema,
                       EventCreateSchema, 
@@ -14,13 +19,20 @@ from api.db.config import DATABASE_URL
 # GET data 
 #GET /api/events/
 @router.get("/")
-def read_events() -> EventListSchema:
-    print( DATABASE_URL)
-    return{
-        "results" : [{"id": 1},{"id": 2},{"id": 3}], 
-        "count": 3
-       
-    }
+def read_events(session: Session =Depends(get_session),
+                 response_model=EventListSchema) :
+
+                 query = select(EventModel).limit(100)
+                 results = session.exec(query).all()
+
+                 return{
+                    "result": results,
+                    "count": len(results)
+
+
+                 }
+    
+    
 
 # /api/events/{event_id}
 @router.get("/{event_id}")
@@ -33,15 +45,18 @@ def get_event(event_id: int) -> EventModel:
 
 # create event
 # api/events/
-@router.post("/")
-def create_event(payload: EventCreateSchema) -> EventModel :
+@router.post("/", response_model=EventModel)
+def create_event(
+    payload: EventCreateSchema,
+      session: Session =Depends(get_session))  :
 
-        print(payload.page)
-        data = payload.model_dump()
-        return {
-            "id": 123, 
-             **data
-        }
+            print(payload.page)
+            data = payload.model_dump()
+            object = EventModel.model_validate(data)
+            session.add(object)
+            session.commit()
+            session.refresh(object)
+            return object
 
 
 # update date 
