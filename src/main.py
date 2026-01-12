@@ -5,6 +5,8 @@ from typing import Union
 from fastapi import FastAPI
 from api.events import router as event_router
 
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # before app startup
