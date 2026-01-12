@@ -1,3 +1,5 @@
+import os 
+
 from fastapi import APIRouter
 from .schemas import (EventSchema,
                       EventListSchema,
@@ -6,11 +8,14 @@ from .schemas import (EventSchema,
 
 
 router = APIRouter()
+# for database connrction 
+from api.db.config import DATABASE_URL
 
 # GET data 
 #GET /api/events/
 @router.get("/")
 def read_events() -> EventListSchema:
+    print( DATABASE_URL)
     return{
         "results" : [{"id": 1},{"id": 2},{"id": 3}], 
         "count": 3
@@ -48,7 +53,7 @@ def update_event(event_id: int, payload:EventUpateSchema) -> EventSchema :
     data = payload.model_dump()
     return{
         "id": event_id, 
-        **data      
+        **data     
     }
 
 
