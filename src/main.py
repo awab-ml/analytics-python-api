@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from typing import Union
 from fastapi import FastAPI
 from api.events import router as event_router
