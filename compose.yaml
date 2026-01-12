@@ -13,7 +13,7 @@ services:
     ports:
       - "8002:8000"
 
-    # Mount فقط src للحفاظ على PYTHONPATH
+    
     volumes:
       - ./src:/code/src
 

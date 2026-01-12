@@ -1,42 +1,55 @@
 from fastapi import APIRouter
-from .schema import (
-    EventSchema,
-    EventListSchema,
-    EventCreateSchema,
-    EventUpdateSchema,
-)
-
+from .schemas import (EventSchema,
+                      EventListSchema,
+                      EventCreateSchema, 
+                      EventUpateSchema)
 
 
 router = APIRouter()
 
-# GET /api/events/
-@router.get("/", response_model=EventListSchema)
-def read_events():
-    return {
-        "results": [1, 2, 3, 4, 5],
-        "count": 5
+# GET data 
+#GET /api/events/
+@router.get("/")
+def read_events() -> EventListSchema:
+    return{
+        "results" : [{"id": 1},{"id": 2},{"id": 3}], 
+        "count": 3
+       
     }
 
-# POST /api/events/
-@router.post("/", response_model=EventSchema)
-def create_events(payload: EventCreateSchema):
-    print("Received payload:", payload.page)
-    data = payload.model_dump()# paylod to -> dict 
-    return {"id": 12, "page": payload.page}
+# /api/events/{event_id}
+@router.get("/{event_id}")
+def get_event(event_id: int) -> EventSchema:
+    print("this a gooood one ")
+    return{
+        "id": event_id
+    }
+
+
+# create event
+# api/events/
+@router.post("/")
+def create_event(payload: EventCreateSchema) -> EventSchema :
+
+        print(payload.page)
+        data = payload.model_dump()
+        return {
+            "id": 123, 
+             **data
+        }
+
+
+# update date 
+#PUT /api/events/{event_id}
+@router.put("/{event_id}")
+def update_event(event_id: int, payload:EventUpateSchema) -> EventSchema :
+    print("update is done ")
+    print(payload.description)
+    data = payload.model_dump()
+    return{
+        "id": event_id, 
+        **data      
+    }
 
 
 
-# GET /api/events/{event_id}
-@router.get("/{event_id}", response_model=EventSchema)
-def get_events(event_id: int):
-    return {"id": event_id}
-
-
-
-# PUT /api/events/{event_id}
-@router.put("/{event_id}", response_model=EventSchema)
-def update_events(event_id: int, payload: EventUpdateSchema):
-
-    print("Update payload:", payload.description)
-    return {"id": event_id, "description": payload.description}
