@@ -9,7 +9,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from .models import (EventModel,
                       EventListSchema,
                       EventCreateSchema, 
-                      EventUpateSchema)
+                      EventUpateSchema,
+                      get_utc_now)
 
 
 router = APIRouter()
@@ -72,7 +73,7 @@ def update_event(event_id: int,
             query = select(EventModel).where(EventModel.id == event_id)
             obj = session.exec(query).first()
             if not obj:
-                raise HTTPException(status_code=404, detail="Event not found found")
+                raise HTTPException(status_code=404, detail="Event not found ")
 
             
 
@@ -80,6 +81,8 @@ def update_event(event_id: int,
 
             for k, v in data.items():
                 setattr(obj, k, v)
+
+            obj.update_at = get_utc_now()
 
             session.add(obj)
             session.commit()

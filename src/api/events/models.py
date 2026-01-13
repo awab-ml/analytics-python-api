@@ -20,8 +20,13 @@ class EventModel(SQLModel, table=True):
         default_factory= get_utc_now, 
         sa_type=sqlmodel.DateTime(timezone=True), 
         nullable=False
-
     )
+    update_at : datetime = Field(
+        default_factory= get_utc_now, 
+        sa_type=sqlmodel.DateTime(timezone=True), 
+        nullable=False
+    )
+    
     
     
 
