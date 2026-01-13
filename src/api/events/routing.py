@@ -44,6 +44,7 @@ def get_event(event_id: int,session: Session =Depends(get_session) ) :
         raise HTTPException(status_code=404, detail="Event not found ")
     print("this a gooood one ")
     return event 
+    
 
 
 
