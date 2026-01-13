@@ -86,6 +86,9 @@ def update_event(event_id: int,
             session.refresh(obj)
             return obj
 
+
+#DELETE
+#DELETE event
 @router.delete("/{event_id}",response_model= EventModel)
 def delete_event(event_id: int, 
                 session: Session =Depends(get_session)):
