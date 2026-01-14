@@ -23,7 +23,7 @@ from api.db.config import DATABASE_URL
 def read_events(session: Session =Depends(get_session),
                  response_model=EventListSchema) :
 
-                 query = select(EventModel).order_by(EventModel.id.asc()).limit(100)
+                 query = select(EventModel).order_by(EventModel.id.asc())
                  results = session.exec(query).all()
 
                  return{
@@ -91,6 +91,7 @@ def update_event(event_id: int,
             return obj
 
 
+
 #DELETE
 #DELETE event
 @router.delete("/{event_id}",response_model= EventModel)
@@ -104,7 +105,7 @@ def delete_event(event_id: int,
                         session.delete(obj)
                         session.commit()
                        
-                        
                             
+
 
 
