@@ -16,8 +16,10 @@ from .models import (EventModel,
                       EventCreateSchema, 
                       get_utc_now)
 
-DEFAULT_LOOKUP_DATA = {"page":"/test"}
-
+DEFAULT_LOOKUP_DATA = ["/", "/about", "/pricing", "/contact", 
+        "/blog", "/products", "/login", "/signup",
+        "/dashboard", "/settings"
+]
 
 router = APIRouter()
 # for database connrction 
@@ -28,34 +30,40 @@ from api.db.config import DATABASE_URL
 @router.get("/", response_model=List[EventBucketSchema])
 def read_events(duration: str = Query(default="1 hour"),
                 page : List[str] = Query(default=None),
-    session: Session =Depends(get_session)
-) :
+                session: Session =Depends(get_session)
+                    ) :
 
-    bucket = time_bucket(duration, EventModel.time).label("bucket")
-    
-    query = (select(
-        bucket.label("bucket"),
-        EventModel.page.label("page"),
-        func.count().label("count")
-        )
-    )
-    
-    if page:
-        query = query.where(EventModel.page.in_(page))
+                        bucket = time_bucket(duration, EventModel.time).label("bucket")
+                        
+                        query = (select(
+                            bucket.label("bucket"),
+                            EventModel.user_agent.label("ua"),
+                            EventModel.page.label("page"),
+                            func.count().label("count")
+                            )
+                        )
+                        
+                        if page:
+                            query = query.where(
+                                EventModel.page
+                                .in_(page)
+                                )
 
-    query = query.group_by(
-        bucket,
-        EventModel.page,
+                        query = query.group_by(
+                            bucket,
+                            EventModel.user_agent,
+                            EventModel.page
+                            
+                        ).order_by(
+                            EventModel.user_agent,
+                            bucket,
+                            EventModel.page
+                        )
 
-    ).order_by(
-        bucket,
-        EventModel.page
-    )
+                        results = session.exec(query).mappings().all()
 
-    results = session.exec(query).mappings().all()
-
-    return results
-    
+                        return results
+                        
     
 
 # /api/events/{event_id}

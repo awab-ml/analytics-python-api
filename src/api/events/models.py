@@ -13,7 +13,7 @@ from timescaledb.utils import get_utc_now
 
 
 #page visited at any given time
-#create the event model for the database 
+#create the event model for the database "the hypertable"
 class EventModel(TimescaleModel, table=True):
     
     
@@ -42,6 +42,9 @@ class EventBucketSchema(SQLModel):
     bucket : datetime
     page : str
     count : int 
+    ua : Optional[str] = ""
+    
+
 
 
 class EventCreateSchema(SQLModel):
@@ -50,7 +53,7 @@ class EventCreateSchema(SQLModel):
     ip_address : Optional[str] = Field(default="", index=True)
     referrer : Optional[str] = Field(default="", index=True)
     session_id : Optional[str] = Field(default="", index=True)
-    duration : Optional[str] = Field(default="", index=True)
+    duration: Optional[int] = Field(default=0)
     
 
 
