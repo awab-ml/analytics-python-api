@@ -18,8 +18,8 @@ class EventModel(TimescaleModel, table=True):
     
     
     page: str = Field(index= True) #about, connect page whatever page visited
-    user_agent : Optional[str] = Field(default="", index=True)
-    id_address : Optional[str] = Field(default="", index=True)
+    user_agent : Optional[str] = Field(default="", index=True)# Browser
+    ip_address : Optional[str] = Field(default="", index=True)
     referrer : Optional[str] = Field(default="", index=True)
     session_id : Optional[str] = Field(default="", index=True)
     duration : Optional[str] = Field(default="", index=True)
@@ -46,11 +46,15 @@ class EventBucketSchema(SQLModel):
 
 class EventCreateSchema(SQLModel):
     page : str
+    user_agent : Optional[str] = Field(default="", index=True)# Browser
+    ip_address : Optional[str] = Field(default="", index=True)
+    referrer : Optional[str] = Field(default="", index=True)
+    session_id : Optional[str] = Field(default="", index=True)
+    duration : Optional[str] = Field(default="", index=True)
     
 
 
-class EventUpateSchema(SQLModel):
-    description : str
+
 
 
 
