@@ -15,22 +15,16 @@ from timescaledb.utils import get_utc_now
 #page visited at any given time
 #create the event model for the database 
 class EventModel(TimescaleModel, table=True):
-    #id : Optional[int] = Field(default=None, primary_key=True)
+    
     
     page: str = Field(index= True) #about, connect page whatever page visited
-    description: Optional[str] = ""
+    user_agent : Optional[str] = Field(default="", index=True)
+    id_address : Optional[str] = Field(default="", index=True)
+    referrer : Optional[str] = Field(default="", index=True)
+    session_id : Optional[str] = Field(default="", index=True)
+    duration : Optional[str] = Field(default="", index=True)
 
 
-    #create_at : datetime = Field(
-        #default_factory= get_utc_now, 
-       # sa_type=sqlmodel.DateTime(timezone=True), 
-       # nullable=False
-    #)
-    update_at : datetime = Field(
-        default_factory= get_utc_now, 
-        sa_type=sqlmodel.DateTime(timezone=True), 
-        nullable=False
-    )
 
     __chunk_time_interval__ = "INTERVAL 1 DAY"
     __drop_after__ = "INTERVAL 3 DAY"
@@ -42,6 +36,11 @@ class EventModel(TimescaleModel, table=True):
 
 class EventListSchema(SQLModel):
     results : List[EventModel]
+    count : int 
+
+class EventBucketSchema(SQLModel):
+    bucket : datetime
+    page : str
     count : int 
 
 

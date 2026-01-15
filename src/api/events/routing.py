@@ -1,16 +1,23 @@
 import os 
-
+from typing import List
 
 from sqlmodel import Session, select
 from api.db.session import get_session
 
+from sqlalchemy import  func
+from datetime import datetime, timedelta, timezone
+from timescaledb.hyperfunctions import time_bucket
 
-from fastapi import APIRouter, Depends, HTTPException
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from .models import (EventModel,
+                    EventBucketSchema,
                       EventListSchema,
                       EventCreateSchema, 
                       EventUpateSchema,
                       get_utc_now)
+
+DEFAULT_LOOKUP_DATA = {"page":"/test"}
 
 
 router = APIRouter()
@@ -19,19 +26,39 @@ from api.db.config import DATABASE_URL
 
 # GET data 
 #GET /api/events/
-@router.get("/")
-def read_events(session: Session =Depends(get_session),
-                 response_model=EventListSchema) :
+@router.get("/", response_model=List[EventBucketSchema])
+def read_events(duration: str = Query(default="1 hour"),
+                page : List = Query(default=None),
+    session: Session =Depends(get_session)
+) :
 
-                 query = select(EventModel).order_by(EventModel.id.asc())
-                 results = session.exec(query).all()
+                    bucket = time_bucket(duration, EventModel.update_at).label("bucket")
+                    lookup_data = page if isinstance(page, list) and len(page) > 0 else DEFAULT_LOOKUP_DATA  
+                    query = (select(
+                        bucket.label("bucket"),
+                        EventModel.page.label("page"),
+                        func.count().label("count")
+                        )
+                        .where(
+                         
+                            EventModel.page == lookup_data["page"]
+                        
+                        )
+                        .group_by(
+                            bucket,
+                        EventModel.page,
 
-                 return{
-                    "result": results,
-                    "count": len(results)
+                        )
+                        .order_by(
+                            bucket,
+                            EventModel.page
+                        )
+                    
+                    )
+                    compile_query = query.compile(compile_kwargs={"literal_binds": True})
+                    results = session.exec(query).mappings().all()
 
-
-                 }
+                    return results
     
     
 
